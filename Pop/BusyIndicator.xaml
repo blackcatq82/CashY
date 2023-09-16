@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CashY.Pop.BusyIndicator"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+
+    <toolkit:Popup.CanBeDismissedByTappingOutsideOfPopup>
+        <x:Boolean>False</x:Boolean>
+    </toolkit:Popup.CanBeDismissedByTappingOutsideOfPopup>
+
+
+    <StackLayout
+        VerticalOptions="Center" 
+        HorizontalOptions="Center" 
+        Padding="5">
+        <Frame WidthRequest="200" HeightRequest="200">
+            <StackLayout BackgroundColor="White" Padding="0" Spacing="0" >
+                <Label 
+                    HorizontalOptions="CenterAndExpand" 
+                    VerticalOptions="CenterAndExpand" 
+                    Text="waiting is Loading..." />
+                <ActivityIndicator 
+                    HorizontalOptions="CenterAndExpand" 
+                    VerticalOptions="CenterAndExpand" 
+                    IsRunning="true" />
+            </StackLayout>
+        </Frame>
+    </StackLayout>
+</toolkit:Popup>

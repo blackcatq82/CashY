@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CashY.Views.HomePage"
+             Title="Home">
+    <AbsoluteLayout>
+
+
+        <RoundRectangle
+            AbsoluteLayout.LayoutBounds="2,80, 180, 180"
+            Fill="#323232"
+            CornerRadius="24"/>
+
+        <Label Text="Categorys"
+               FontAttributes="Bold"
+               FontSize="24"
+               TextColor="White"
+               AbsoluteLayout.LayoutBounds="24,120, 180, 180" />
+        <Label Text="{Binding CountCategorys}"
+               FontAttributes="Bold"
+               FontSize="34"
+               TextColor="White"
+               AbsoluteLayout.LayoutBounds="44,150, 180, 180" />
+
+        <RoundRectangle
+            AbsoluteLayout.LayoutBounds="190,80, 180, 180"
+            Fill="#00743F"
+            CornerRadius="24"/>
+
+        <Label Text="Items"
+               FontAttributes="Bold"
+               FontSize="24"
+               TextColor="White"
+               AbsoluteLayout.LayoutBounds="210,120, 180, 180" />
+        <Label Text="{Binding CountItems}"
+               FontAttributes="Bold"
+               FontSize="34"
+               TextColor="White"
+               AbsoluteLayout.LayoutBounds="240,150, 180, 180"  />
+        
+        
+        
+        <RoundRectangle
+            AbsoluteLayout.LayoutBounds="2,320, 180, 180"
+            Fill="#0DBA6A"
+            CornerRadius="24"/>
+
+
+        <Label Text="Payments"
+               FontAttributes="Bold"
+               FontSize="24"
+               TextColor="White"
+               AbsoluteLayout.LayoutBounds="24,360, 180, 180" />
+        <Label Text="0"
+               FontAttributes="Bold"
+               FontSize="34"
+               TextColor="White"
+               AbsoluteLayout.LayoutBounds="44,390, 180, 180"  />
+
+        <RoundRectangle
+            AbsoluteLayout.LayoutBounds="190,320, 180, 180"
+            Fill="#3373B2"
+            CornerRadius="24"/>
+
+
+        <Label Text="Historys"
+               FontAttributes="Bold"
+               FontSize="24"
+               TextColor="White"
+               AbsoluteLayout.LayoutBounds="210,360, 180, 180" />
+        <Label Text="0"
+               FontAttributes="Bold"
+               FontSize="34"
+               TextColor="White"
+               AbsoluteLayout.LayoutBounds="240,390, 180, 180"  />
+
+    </AbsoluteLayout>
+</ContentPage>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CashY.MyConverter"
+             x:Class="CashY.ContentViews.ItemViews.ItemsViewItem">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <local:ConvertUrlImageToImageSource x:Key="imageFromString" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+    <AbsoluteLayout>
+        <RoundRectangle
+            AbsoluteLayout.LayoutBounds="10,-40,330,200"
+            Fill="#3373B2"
+            HeightRequest="110"
+            CornerRadius="25" />
+
+        <Frame 
+            HorizontalOptions="Start"
+            AbsoluteLayout.LayoutBounds="10,5,110,110"
+            CornerRadius="5" 
+            HasShadow="False"
+            WidthRequest="110"
+            HeightRequest="110">
+            <Image 
+                WidthRequest="100"
+                HeightRequest="100"
+                Source="{Binding ImageSource}"
+                Aspect="Fill">
+            </Image>
+        </Frame>
+        <Label 
+            HorizontalOptions="End"
+            AbsoluteLayout.LayoutBounds="205,50,110,110"
+            HorizontalTextAlignment="End"
+            VerticalTextAlignment="Center"
+            TextColor="Gold"
+            FontAttributes="Bold"
+            FontSize="Micro"
+            LineBreakMode="NoWrap"
+            Text="{Binding Create_date, Mode=OneWay, StringFormat='Time Create : {0:yyyy-MM-dd HH:mm:ss}'}" />
+        <Label 
+            HorizontalOptions="End"
+            AbsoluteLayout.LayoutBounds="190,5,110,110"
+            HorizontalTextAlignment="End"
+            VerticalTextAlignment="Center"
+            TextColor="White"
+            FontAttributes="Bold"
+            FontSize="32"
+            Text="{Binding Item_name}" />
+
+
+        <Button 
+            AbsoluteLayout.LayoutBounds="5,100,32,32"
+            Text="X"
+            HeightRequest="32"
+            WidthRequest="32"
+            CornerRadius="25"
+            BackgroundColor="DarkRed"
+            Command="{Binding Del, Mode=OneWay}"
+            CommandParameter="{Binding Id, Mode=OneWay}">
+        </Button>
+       
+    </AbsoluteLayout>
+</ContentView>

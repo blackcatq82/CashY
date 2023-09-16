@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="CashY.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    FlowDirection="RightToLeft"
+    Shell.FlyoutBehavior="Flyout">
+
+    <Shell.FlyoutHeaderTemplate>
+        <DataTemplate>
+            <Grid BackgroundColor="Black"
+                  HeightRequest="200">
+                <Image Aspect="AspectFill"
+                       Source="test.svg"
+                       Opacity="0.6" />
+                <Label Text="System BlackCat"
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </Shell.FlyoutHeaderTemplate>
+
+    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent  Content="{Binding HomePage}" Title="Home" Route="HomePage">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Icons" Color="Black" Glyph="&#xE810;"/>
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Content="{Binding CategoryPage}" Title="Category"  Route="CategoryPage">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Icons" Color="Black" Glyph="&#xE80F;"/>
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent  Content="{Binding ItemsPage}" Title="Items"  Route="ItemsPage">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Icons" Color="Black" Glyph="&#xF0C5;"/>
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent  Content="{Binding PaymentPage}" Title="Payment" Route="PaymentPage">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Icons" Color="#00743F" Glyph="&#xF155;"/>
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent  Content="{Binding HistoryPage}" Title="History" Route="HistoryPage">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Icons" Color="Black" Glyph="&#xF1DA;"/>
+            </ShellContent.Icon>
+        </ShellContent>
+    </FlyoutItem>
+
+    <MenuItem Text="Logout" StyleClass="MenuItemLayoutStyle" Clicked="Logout_Clicked">
+        <MenuItem.IconImageSource>
+            <FontImageSource FontFamily="Icons" Color="Black" Glyph="&#xE812;"/>
+        </MenuItem.IconImageSource>
+    </MenuItem>
+</Shell>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CashY.Pop.Items.PopupInsertItem"
+             Title="Insert a New Item">
+
+    <Grid Padding="20,50,0,0" RowDefinitions=".1*,.1*,.1*,.1*,.1*,.1*,.1*,.1*,.1*">
+        <!-- Name Start -->
+        <StackLayout Grid.Row="0" 
+                     Orientation="Horizontal"
+                     Spacing="20">
+            <Label Text="Name : " HorizontalTextAlignment="Center"  VerticalTextAlignment="Center"/>
+            <Entry Text="{Binding Item_name, Mode=TwoWay}" Placeholder="Input item name" WidthRequest="200" HeightRequest="50" />
+        </StackLayout>
+        <!-- Name End -->
+        <!-- price Start -->
+        <StackLayout Grid.Row="1" 
+                     Orientation="Horizontal"
+                     Spacing="20">
+            <Label Text="Price : " HorizontalTextAlignment="Center"  VerticalTextAlignment="Center"/>
+            <Entry Text="{Binding Item_price, Mode=TwoWay}" Placeholder="Input item price" WidthRequest="200" HeightRequest="50" Keyboard="Numeric" />
+        </StackLayout>
+        <!-- price End -->
+        <!-- image Start -->
+        <StackLayout Grid.Row="2" 
+                     Orientation="Horizontal"
+                     Spacing="20">
+            <Label Text="Select image : " HorizontalTextAlignment="Center"  VerticalTextAlignment="Center"/>
+            <Button 
+                HeightRequest="45"
+                WidthRequest="120"
+                Command="{Binding SelectImage}"
+                Text="Select a Image" />
+            <Image 
+                WidthRequest="75"
+                HeightRequest="75"
+                Source="{Binding MyImageSource, Mode=OneWay}" />
+        </StackLayout>
+        <!-- image End -->
+        <!-- quantity Start -->
+        <StackLayout Grid.Row="3" 
+                     Orientation="Horizontal"
+                     Spacing="20">
+            <Label Text="Quantity : " HorizontalTextAlignment="Center"  VerticalTextAlignment="Center"/>
+            <Entry Text="{Binding Item_quantity, Mode=TwoWay}" Placeholder="Input item quantity" WidthRequest="200" HeightRequest="50" Keyboard="Numeric" />
+        </StackLayout>
+        <!-- quantity End -->
+        <!-- Expire date Start -->
+        <StackLayout Grid.Row="4" 
+                     Orientation="Horizontal"
+                     Spacing="20">
+            <Label Text="Expire date : " HorizontalTextAlignment="Center"  VerticalTextAlignment="Center"/>
+            <DatePicker Date="{Binding Item_expire_date, Mode=TwoWay}" WidthRequest="200" HeightRequest="50" />
+        </StackLayout>
+        <!-- Expire date End -->
+        <!-- Price buy Start -->
+        <StackLayout Grid.Row="5" 
+                     Orientation="Horizontal"
+                     Spacing="20">
+            <Label Text="Price buy : " HorizontalTextAlignment="Center"  VerticalTextAlignment="Center"/>
+            <Entry Text="{Binding Item_price_buy, Mode=TwoWay}" Placeholder="Input item price buy" WidthRequest="200" HeightRequest="50" Keyboard="Numeric" />
+        </StackLayout>
+        <!-- Price buy -->
+
+
+        <!-- Price buy Start -->
+        <StackLayout Grid.Row="6" 
+                     Orientation="Horizontal"
+                     Spacing="20">
+            <Label Text="Select category : " HorizontalTextAlignment="Center"  VerticalTextAlignment="Center"/>
+            <Picker Title="Select a cate's"
+                    ItemsSource="{Binding Categorys}"
+                    ItemDisplayBinding="{Binding Cate_name}"
+                     SelectedItem="{Binding CateSelect, Mode=TwoWay}"/>
+        </StackLayout>
+        <!-- Price buy -->
+        
+        
+        <Button 
+            Command="{Binding Insert}"
+            WidthRequest="120"
+            HeightRequest="45"
+            Grid.Row="7" 
+            FontAttributes="Bold"
+            Text="Insert" />
+    </Grid>
+</ContentPage>

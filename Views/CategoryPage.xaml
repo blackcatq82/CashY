@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CashY.Views.CategoryPage"
+             xmlns:Converter="clr-namespace:CashY.MyConverter"
+             xmlns:CategoryViews="clr-namespace:CashY.ContentViews.CategoryViews"
+             x:Name="parentPage"
+             Title="Category">
+
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Converter:ConvertUrlImageToImageSource x:Key="ConvertToImageSrc" />
+            <Converter:ConvertTureToFalse x:Key="TrueToFalse" />
+            <CategoryViews:CategoryViewItem x:Key="cateViewItem" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    
+    <!--
+    ToolBar Items
+    -->
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Command="{Binding addnewCategory, Mode=OneWay}">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource Glyph="&#xE816;" FontFamily="Icons" Color="White"/>
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+    <AbsoluteLayout>
+
+        <!--
+        START
+        Search Bar and Label
+        -->
+        <Label 
+            AbsoluteLayout.LayoutBounds="20, 10"
+            TextColor="Black"
+            Text="Search By name" />
+        <SearchBar 
+            x:Name="searchBar"
+            AbsoluteLayout.LayoutBounds="10, 40, 360, 40"
+            BackgroundColor="White"
+            PlaceholderColor="Silver"
+            TextColor="Black"
+            TextChanged="searchBar_TextChanged"
+            SearchCommand="{Binding search, Mode=OneWay}"
+            SearchCommandParameter="{Binding Text, Source={x:Reference searchBar}}"
+            Placeholder="Search category!" />
+        <!--
+        END
+        Search Bar and Label
+        -->
+
+
+
+        <!--
+        START
+        Scroll View
+        -->
+            <ScrollView 
+            IsVisible="{Binding IsSearching, Mode=OneWay, Converter={StaticResource TrueToFalse}}"
+            AbsoluteLayout.LayoutBounds="20,90, 340, 560"
+            Orientation="Vertical" 
+            VerticalOptions="FillAndExpand">
+                <!--
+            START
+            Flex Layout
+            -->
+            <FlexLayout 
+                Direction="Column"
+                HorizontalOptions="Center"
+                BindableLayout.ItemsSource="{Binding Categorys, Mode=OneWay}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <CategoryViews:CategoryViewItem BindingContext="{Binding ., Mode=OneWay}"/>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+                <!--
+            START
+            Flex Layout
+            -->
+            </ScrollView>
+            <!--
+        END
+        Scroll View
+        -->
+
+
+        <!--
+        START
+        SEARCH VIEW
+        Scroll View
+        -->
+        <ScrollView 
+            IsVisible="{Binding IsSearching, Mode=OneWay}"
+            AbsoluteLayout.LayoutBounds="20,90, 340, 560"
+            Orientation="Vertical" 
+            VerticalOptions="FillAndExpand">
+            <!--
+            START
+            Flex Layout
+            -->
+            <FlexLayout 
+                Direction="Column"
+                HorizontalOptions="Center"
+                BindableLayout.ItemsSource="{Binding FilteredCategories, Mode=OneWay}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <CategoryViews:CategoryViewItem BindingContext="{Binding ., Mode=OneWay}"/>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+            <!--
+            START
+            Flex Layout
+            -->
+        </ScrollView>
+        <!--
+        END
+        Scroll View
+        -->
+
+    </AbsoluteLayout>
+</ContentPage>

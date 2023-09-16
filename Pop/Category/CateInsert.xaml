@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="CashY.Pop.Category.CateInsert" >
+    <AbsoluteLayout
+        
+        VerticalOptions="Center" 
+        HorizontalOptions="Center" >
+        <Frame
+            WidthRequest="410"
+            HeightRequest="480"
+            CornerRadius="5" 
+            HorizontalOptions="Center" 
+            VerticalOptions="Start"
+            HasShadow="False"
+            IsClippedToBounds="True"
+            Padding="0">
+        </Frame>
+
+
+        <!-- Title & Round -->
+        <RoundRectangle
+            AbsoluteLayout.LayoutBounds="30,10"
+            Fill="#00743F"
+            CornerRadius="24"
+            WidthRequest="275"
+            HeightRequest="40" />
+        <Label 
+            AbsoluteLayout.LayoutBounds="55,20"
+            Text="Insert a new category!" 
+            TextColor="White"
+            HorizontalOptions="Center" 
+            FontSize="Subtitle" 
+            FontAttributes="Bold"/>
+
+        <!-- Error Message  -->
+        <Label 
+            Text="{Binding ErrorMessage, Mode=OneWay}"
+            AbsoluteLayout.LayoutBounds="55,20"
+            TextColor="Red"
+            HorizontalOptions="Center" 
+            FontSize="Subtitle" 
+            FontAttributes="Bold"/>
+        
+
+        <!-- Label Name category & input -->
+        <Label 
+            AbsoluteLayout.LayoutBounds="30, 120"
+            FontSize="Medium"
+            TextColor="Black"
+            FontAttributes="Bold"
+            Text="name cate:"/>
+        <Entry 
+            AbsoluteLayout.LayoutBounds="120, 110"
+            FontSize="Micro"
+            TextColor="Black"
+            FontAttributes="Bold"
+            Text="{Binding Cate_Name, Mode=TwoWay}"
+            Placeholder="input name category"/>
+    
+        <!-- Image Category display  -->
+        <Frame AbsoluteLayout.LayoutBounds="80,160, 205 , 205"
+               BackgroundColor="Transparent">
+            <Image
+                Source="{Binding ImageCateDisplay, Mode=OneWay}"
+                Aspect="AspectFill"/>
+        </Frame>
+
+
+        <!-- Import file image -->
+        <Button 
+            Command="{Binding ImportImage, Mode=OneWay}"
+            AbsoluteLayout.LayoutBounds="110,370"
+            Text="Input Image file..." />
+
+        <!-- Save -->
+        <Button 
+            Command="{Binding Save, Mode=OneWay}"
+            WidthRequest="150"
+            AbsoluteLayout.LayoutBounds="90,425"
+            BackgroundColor="#00743F"
+            Text="Save" />
+
+    </AbsoluteLayout>
+</toolkit:Popup>
