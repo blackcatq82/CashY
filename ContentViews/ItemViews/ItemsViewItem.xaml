@@ -8,58 +8,93 @@
             <local:ConvertUrlImageToImageSource x:Key="imageFromString" />
         </ResourceDictionary>
     </ContentView.Resources>
-    <AbsoluteLayout>
-        <RoundRectangle
-            AbsoluteLayout.LayoutBounds="10,-40,330,200"
-            Fill="#3373B2"
-            HeightRequest="110"
-            CornerRadius="25" />
 
-        <Frame 
-            HorizontalOptions="Start"
-            AbsoluteLayout.LayoutBounds="10,5,110,110"
+    <SwipeView HeightRequest="155">
+        <SwipeView.RightItems>
+            <SwipeItems Mode="Reveal">
+                <SwipeItem 
+                    x:Name="Del"
+                    Text="Delete"
+                    Command="{Binding Del, Mode=OneWay}"
+                    CommandParameter="{Binding Id, Mode=OneWay}"
+                    BackgroundColor="DarkRed">
+                </SwipeItem>
+            </SwipeItems>
+        </SwipeView.RightItems>
+        <Grid RowDefinitions=".5*,.5*"
+              ColumnDefinitions=".5*, .5*">
+            <RoundRectangle
+                Margin="10, 0, 10, 0"
+                Grid.RowSpan="2"
+                Grid.ColumnSpan="2"
+                Fill="#3373B2"
+                CornerRadius="35" />
+
+            <Frame 
+            Grid.RowSpan="2"
+            Grid.Column="0"
+            HorizontalOptions="Center"
             CornerRadius="5" 
             HasShadow="False"
             WidthRequest="110"
             HeightRequest="110">
-            <Image 
+                <Image 
                 WidthRequest="100"
                 HeightRequest="100"
                 Source="{Binding ImageSource}"
                 Aspect="Fill">
-            </Image>
-        </Frame>
-        <Label 
-            HorizontalOptions="End"
-            AbsoluteLayout.LayoutBounds="205,50,110,110"
-            HorizontalTextAlignment="End"
-            VerticalTextAlignment="Center"
-            TextColor="Gold"
-            FontAttributes="Bold"
-            FontSize="Micro"
-            LineBreakMode="NoWrap"
-            Text="{Binding Create_date, Mode=OneWay, StringFormat='Time Create : {0:yyyy-MM-dd HH:mm:ss}'}" />
-        <Label 
-            HorizontalOptions="End"
-            AbsoluteLayout.LayoutBounds="190,5,110,110"
-            HorizontalTextAlignment="End"
-            VerticalTextAlignment="Center"
-            TextColor="White"
-            FontAttributes="Bold"
-            FontSize="32"
-            Text="{Binding Item_name}" />
+                </Image>
+            </Frame>
+            
+            
+            <Label 
+                Grid.Column="1"
+                Grid.Row="1"
+                HorizontalTextAlignment="Start"
+                VerticalTextAlignment="Center"
+                TextColor="Gold"
+                FontAttributes="Bold"
+                FontSize="Micro"
+                LineBreakMode="NoWrap"
+                Text="" />
+
+            <StackLayout Grid.Column="1"
+                Grid.Row="0">
+                <Label 
+                        HorizontalTextAlignment="Start"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="21"
+                        Text="{Binding Item_name, Mode=OneWay, StringFormat='أسم المنتج : {0}'}" />
+                <Label 
+                        HorizontalTextAlignment="Center"
+                        TextColor="White"
+                        FontSize="Micro"
+                        Text="{Binding Item_price, Mode=OneWay, StringFormat='سعر البيع :   {0} K.D'}" />
+                <Label 
+                        HorizontalTextAlignment="Center"
+                        TextColor="White"
+                        FontSize="Micro"
+                        Text="{Binding Item_quantity, Mode=OneWay, StringFormat='العدد المتوفر: {0}'}" />
+                <Label 
+                        HorizontalTextAlignment="Center"
+                        TextColor="White"
+                        FontSize="Micro"
+                        Text="{Binding Item_price_buy, Mode=OneWay, StringFormat='سعر الشراء: {0} K.D'}" />
+
+                <Label 
+                        HorizontalTextAlignment="Center"
+                        TextColor="White"
+                        FontSize="Micro"
+                        Text="{Binding Item_cate_name, Mode=OneWay, StringFormat='تابع لقسم : {0} '}" />
 
 
-        <Button 
-            AbsoluteLayout.LayoutBounds="5,100,32,32"
-            Text="X"
-            HeightRequest="32"
-            WidthRequest="32"
-            CornerRadius="25"
-            BackgroundColor="DarkRed"
-            Command="{Binding Del, Mode=OneWay}"
-            CommandParameter="{Binding Id, Mode=OneWay}">
-        </Button>
-       
-    </AbsoluteLayout>
+                <Label 
+                        HorizontalTextAlignment="Start"
+                        TextColor="White"
+                        FontSize="Micro"
+                        Text="{Binding Item_expire_date, Mode=OneWay, StringFormat='تاريخ الانتهاء:{0:yyyy-MM-dd}'}" />
+            </StackLayout>
+        </Grid>
+    </SwipeView>
 </ContentView>

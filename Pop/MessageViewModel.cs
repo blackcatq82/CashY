@@ -1,7 +1,5 @@
 ﻿using CashY.ViewModels;
-using CashY.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
-
 namespace CashY.Pop
 {
     public partial class MessageViewModel : NewBaseViewModel
@@ -15,9 +13,9 @@ namespace CashY.Pop
 
         public MessageViewModel()
         {
-            title = FORMATS.Title_INFO;
+            title = "info";
             message = "here we will show messages box!";
-            buttonTitle = FORMATS.CLOSE;
+            buttonTitle = "close";
         }
     }
 }

@@ -1,9 +1,10 @@
-﻿namespace CashY;
+﻿using CashY.Views;
+namespace CashY;
 public partial class App : Application
 {
-    public App(Login login)
+    public App(LoadPage load)
 	{
         InitializeComponent();
-        MainPage = login;
+        MainPage = load;
     }
 }

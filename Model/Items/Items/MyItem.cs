@@ -1,14 +1,11 @@
-﻿using CashY.Core;
-using CashY.Pop;
-using CashY.Services;
+﻿using CashY.Services;
 using CashY.Views.ViewsModel;
-using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text.Json.Serialization;
 namespace CashY.Model.Items.Items
 {
-    public partial class MyItem : ObservableObject, IDisposable
+    public partial class MyItem : ObservableObject
     {
         private int id;
         [JsonPropertyName("id")]
@@ -25,6 +22,9 @@ namespace CashY.Model.Items.Items
             get => item_cate;
             set => SetProperty(ref item_cate, value);
         }
+
+        [ObservableProperty]
+        private string item_cate_name;
 
         private string item_name;
         [JsonPropertyName("item_name")]
@@ -100,176 +100,86 @@ namespace CashY.Model.Items.Items
         private bool isReloadImage;
         public IAsyncRelayCommand Del { get; set; }
 
-        public IItemsServices itemsServices { get; set; }
-
-        public ItemsPageViewModel viewModel { get; set; }
-        public MyItem(IItemsServices itemsServices, ItemsPageViewModel viewModel)
+        public readonly IItemsServices itemsServices;
+        public readonly IPopupServices popupServices;
+        private readonly ILoadData load;
+        private readonly IDatabaseServices databaseServices;
+        public readonly ItemsPageViewModel viewModel;
+        public MyItem(IItemsServices itemsServices, IPopupServices popupServices, ILoadData load,  ItemsPageViewModel viewModel, IDatabaseServices databaseServices)
         {
             this.itemsServices = itemsServices;
             this.viewModel = viewModel;
+            this.load = load;
+            this.popupServices= popupServices;
+            this.databaseServices=databaseServices;
 
             Del = new AsyncRelayCommand<int>(DelTask);
+
         }
 
         private async Task DelTask(int id)
         {
             try
             {
-                await ShowBusyIndicator();
+                popupServices.Show();
                 var result = await itemsServices.Del(id);
-                await UpdateUIAfterDelete(result);
+                popupServices.Close();
+                if (result)
+                {
+                    await popupServices.ShowPopUpMessage("Del!", "You'r deleted the item!", "OK!");
+                    var item = viewModel.Items.Where(x => x.Id == id).FirstOrDefault();
+                    if (item!= null)
+                    {
+                        viewModel.Items.Remove(item);
+                    }
+                }
+                else
+                {
+                    await popupServices.ShowPopUpMessage("INFO", "Can't delete the item, check the networking, please.", "OK!");
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            finally
+        }
+
+        public async Task reloadImage()
+        {
+            try
             {
-                if (busyIndicator != null)
+                var cate = databaseServices.categories.Where(x=>x.Id == item_cate).FirstOrDefault();
+                if (cate != null)
                 {
-                    // busy indicator close
-                    busyIndicator.Close();
+                    Item_cate_name = cate.cate_name;
                 }
+                else
+                {
+                    Item_cate_name = "لا يوجد";
+                }
+
+                string pathImage = await this.load.GetPathItems(Id, Item_image);
+                ImageSource = ImageSource.FromFile(pathImage);
+            }
+            catch(Exception ex)
+            {
+                await Console.Out.WriteLineAsync($"Load Image Error:{ex}");
             }
         }
 
 
-        private async Task UpdateUIAfterDelete(bool result)
+        public Task CopyTo(MyItemRequest request)
         {
-            if (result)
-            {
-                await viewModel.ReloadItems(true);
-                if (busyIndicator != null)
-                {
-                    // busy indicator close
-                    busyIndicator.Close();
-                }
-
-                string title = "Del!";
-                string message = "You'r deleted the item!";
-
-                await Shell.Current.DisplayAlert(title, message, "OK!");
-            }
-            else
-            {
-                if (busyIndicator != null)
-                {
-                    // busy indicator close
-                    busyIndicator.Close();
-                }
-
-                string title = "INFO";
-                string message = "Can't delete the item, check the networking, please.";
-                await Shell.Current.DisplayAlert(title, message, "OK!");
-            }
-        }
-
-        public Task DownloadImageAsync()
-        {
-            cancellationTokenSource = new CancellationTokenSource(); 
-            token = cancellationTokenSource.Token;
-
-            //await Task.Run(async () =>
-            //{
-            //    // Check for cancellation before starting the task
-            //    cancellationTokenSource.Token.ThrowIfCancellationRequested();
-            //    await DownloadImg();
-            //}, token);
-
-            ImageSource = ImageSource.FromFile("dotnet_bot.png");
-
+            Id = request.Id;
+            Item_name = request.item_name;
+            Item_cate = request.item_cate;
+            Item_image = request.item_image;
+            Item_price = request.item_price;
+            Item_price_buy = request.item_price_buy;
+            Item_quantity = request.item_quantity;
+            Item_create_date = request.item_create_date;
+            Item_expire_date = request.item_expire_date;
             return Task.CompletedTask;
-        }
-
-        private async Task DownloadImg()
-        {
-            // Get the image URL from your Cate_image property
-            try
-            {
-                if (IsReloadImage) return;
-                IsReloadImage = true;
-
-                string url = string.Format(FORMATS.DOWNLOAD_IMAGE_ITEMS, Item_image);
-                // Create an ImageSource from the URL
-                Uri imageUrl = new Uri(url);
-                using (HttpClient httpClient = new())
-                {
-                    // Download the image asynchronously
-                    byte[] imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
-
-                    // Create an ImageSource from the downloaded bytes
-                    if (imageBytes != null && imageBytes.Length > 0)
-                    {
-                        Stream stream = new MemoryStream(imageBytes);
-                        ImageSource = ImageSource.FromStream(() => stream);
-                    }
-                    else
-                    {
-                        ImageSource = ImageSource.FromFile("dotnet_bot.png");
-                    }
-                }
-            }
-            catch (OperationCanceledException ex)
-            {
-                // Handle cancellation gracefully
-                Console.WriteLine("Task was canceled: " + ex.Message);
-                IsReloadImage = false;
-                return;
-            }
-            catch (Exception ex)
-            {
-                // Handle any exceptions that may occur during the download
-                Console.WriteLine("Error downloading image: " + ex.Message);
-                ImageSource = ImageSource.FromFile("dotnet_bot.png");
-                IsReloadImage = false;
-                return;
-            }
-            finally
-            {
-                IsReloadImage = true;
-            }
-        }
-        // Popup Busy indicator
-        private BusyIndicator busyIndicator { get; set; }
-        private async Task<bool> ShowBusyIndicator()
-        {
-
-            try
-            {
-                if (busyIndicator != null)
-                {
-                    // busy indicator close
-                    busyIndicator.Close();
-                    busyIndicator = null;
-                }
-
-                busyIndicator = new BusyIndicator();
-                Shell.Current.ShowPopup(busyIndicator);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error:{ex.Message}");
-            }
-
-            return await Task.FromResult(true);
-        }
-
-
-        private CancellationTokenSource cancellationTokenSource;
-        private CancellationToken token;
-        private bool disposing = true;
-        public void Dispose()
-        {
-            if (cancellationTokenSource == null) return;
-            cancellationTokenSource?.Cancel();
-            if (disposing)
-            {
-                // Cancel the task and dispose the CancellationTokenSource
-                cancellationTokenSource?.Cancel();
-                cancellationTokenSource?.Dispose();
-                disposing = false;
-                IsReloadImage = false;
-            }
         }
     }
 }

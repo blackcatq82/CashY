@@ -1,15 +1,9 @@
-﻿using CashY.Core;
-using CashY.Pop;
-using CashY.Services;
+﻿using CashY.Services;
 using CashY.ViewModels;
 using CashY.Views.ViewsModel;
-using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text.Json.Serialization;
-
-
-
 namespace CashY.Model.Items
 {
     public partial class Category : NewBaseViewModel
@@ -65,21 +59,21 @@ namespace CashY.Model.Items
         ImageSource imageSource;
 
         public IAsyncRelayCommand delItemCategory { get; }
-        public IServiceProvider serviceProvider { get; set; }
-        public ICategoryServices categoryServices { get; set; }
-        public CategoryPageViewModel viewModel { get; set; }
-        public AppShell appShell { get; set; }
 
-        public Category(
-            IServiceProvider serviceProvider,
-            CategoryPageViewModel viewModel, 
-            ICategoryServices categoryServices,
-            AppShell appShell)
+
+
+        private readonly ICategoryServices categoryServices;
+        private readonly IPopupServices popupServices;
+        private readonly ILoadData load;
+        private readonly CategoryPageViewModel viewModel;
+
+        public Category(CategoryPageViewModel viewModel, ICategoryServices categoryServices, IPopupServices popupServices, ILoadData load)
         {
-            this.serviceProvider = serviceProvider;
             this.viewModel = viewModel;
             this.categoryServices = categoryServices;
-            this.appShell = appShell;
+            this.popupServices=popupServices;
+            this.load=load;
+
             ImageSource = ImageSource.FromFile("dotnet_bot.png");
             delItemCategory = new AsyncRelayCommand<int>(RemoveItem);
         }
@@ -92,73 +86,41 @@ namespace CashY.Model.Items
             }
         }
 
-        private async Task UpdateUIAfterDelete(bool result)
-        {
-            if (result)
-            {
-                string title = "Del!";
-                string message = "You'r deleted the item!";
-                await Shell.Current.DisplayAlert(title, message, "OK!");
-                await viewModel.LoadCategorys(true);
-            }
-            else
-            {
-                string title = "INFO";
-                string message = "Can't delete the item, check the networking, please.";
-                await Shell.Current.DisplayAlert(title, message, "OK!");
-            }
-        }
-
         public async Task RemoveItem(int id)
         {
             try
             {
-                await ShowBusyIndicator();
+                popupServices.Show();
                 var result = await categoryServices.Del(id);
-                if (busyIndicator != null)
+                if (result)
                 {
-                    // busy indicator close
-                    busyIndicator.Close();
+                    popupServices.Close();
+                    await popupServices.ShowPopUpMessage("Del!", "You'r deleted the item!", "OK!");
+                    var item =  viewModel.Categorys.Where(x => x.Id == id).FirstOrDefault();
+                    if (item!= null)
+                    {
+                        viewModel.Categorys.Remove(item);
+                    }
                 }
-
-                await UpdateUIAfterDelete(result);
+                else
+                {
+                    popupServices.Close();
+                    await popupServices.ShowPopUpMessage("INFO", "Can't delete the item, check the networking, please.", "OK!");
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            finally
-            {
-
-            }
         }
-
-        public async Task DownloadImageAsync()
+        public async Task ReloadImage()
         {
             // Get the image URL from your Cate_image property
             try
             {
                 if(IsBusy || isReloadImage) return;
-
-                string url = string.Format(FORMATS.DOWNLOAD_IMAGE, Cate_image);
-                // Create an ImageSource from the URL
-                Uri imageUrl = new Uri(url);
-                using (HttpClient httpClient = new())
-                {
-                    // Download the image asynchronously
-                    byte[] imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
-
-                    // Create an ImageSource from the downloaded bytes
-                    if (imageBytes != null && imageBytes.Length > 0)
-                    {
-                        Stream stream = new MemoryStream(imageBytes);
-                        ImageSource = ImageSource.FromStream(() => stream);
-                    }
-                    else
-                    {
-                        ImageSource = ImageSource.FromFile("dotnet_bot.png");
-                    }
-                }
+                string path = await load.GetPathCates(Id, Cate_image);
+                ImageSource = ImageSource.FromFile(path);
             }
             catch (Exception ex)
             {
@@ -172,31 +134,14 @@ namespace CashY.Model.Items
                 isReloadImage = true;
             }
         }
-
-
-        // Popup Busy indicator
-        private BusyIndicator busyIndicator { get; set; }
-        private async Task<bool> ShowBusyIndicator()
+        public Task CopyTo(CategoryRequest request)
         {
-
-            try
-            {
-                if (busyIndicator != null)
-                {
-                    // busy indicator close
-                    busyIndicator.Close();
-                    busyIndicator = null;
-                }
-
-                busyIndicator = new BusyIndicator();
-                App.Current.MainPage.ShowPopup(busyIndicator);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error:{ex.Message}");
-            }
-
-            return await Task.FromResult(true);
+            this.Id = request.id;
+            this.Cate_name = request.cate_name;
+            this.Cate_image = request.cate_image;
+            this.Create_datee = request.create_date;
+            this.Create_date = request.create_date.ToShortDateString();
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,24 +1,17 @@
 namespace CashY.Views;
 public partial class HomePage : ContentPage
 {
-    private ViewsModel.HomePageViewModel vm;
+    private readonly ViewsModel.HomePageViewModel vm;
 	public HomePage(ViewsModel.HomePageViewModel vm)
 	{
         this.vm = vm;
         BindingContext = vm;
         InitializeComponent();
     }
-
-    protected override async void OnAppearing()
+    protected async override void OnAppearing()
     {
         base.OnAppearing();
-
-        await Task.Run(async () =>
-        {
-            await Shell.Current.Dispatcher.DispatchAsync(async () =>
-            {
-                await vm.Reload();  
-            });
-        });
+        // reload items.
+        await MainThread.InvokeOnMainThreadAsync(vm.Reload);
     }
 }

@@ -2,13 +2,8 @@
 <toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CashY.Pop.BusyIndicator"
+             CanBeDismissedByTappingOutsideOfPopup="False"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
-
-    <toolkit:Popup.CanBeDismissedByTappingOutsideOfPopup>
-        <x:Boolean>False</x:Boolean>
-    </toolkit:Popup.CanBeDismissedByTappingOutsideOfPopup>
-
-
     <StackLayout
         VerticalOptions="Center" 
         HorizontalOptions="Center" 

@@ -1,147 +1,173 @@
 ﻿using CashY.Core;
+using CashY.Model.Items;
 using CashY.Model.Items.Items;
-using Newtonsoft.Json;
+using Dapper;
+using Microsoft.Extensions.Logging;
 
 namespace CashY.Services
 {
     public interface IItemsServices
     {
-        Task<ItemPackage> InsertAsync(int item_cate, string item_name, double item_price, string item_image, int item_quantity, string item_expire_date, double item_price_buy);
+        int currentCount { get; set; }
+        Task<(bool, MyItem)> InsertAsync(int item_cate, string item_name, double item_price, string item_image, int item_quantity, string item_expire_date, double item_price_buy);
         Task<MyItem[]> GetItemsAsync();
-
+        Task<MyItem[]> GetNext();
+        Task<MyItem[]> GetBack();
         Task<bool> Del(int id);
     }
 
     public class ItemsServices : IItemsServices
     {
-        private string ClassName = "Items";
-        private string MethodInsert = "Insert";
-        private string MethodGetAll = "GetAll";
-        private string MethodDel = "Del";
 
-        private IServiceProvider _serviceProvider;
-        private IMyHttpRequests _httpRequests;
+        private readonly IServiceProvider serviceProvider;
+        private readonly IMyHttpRequests httpRequests;
+        private readonly IDatabaseServices databaseServices;
+        private readonly ILoadData load;
+        private readonly ILoggerServices loggerServices;
 
-        private ItemPackage package { get; set; }
-        public ItemsServices(IServiceProvider serviceProvider, IMyHttpRequests httpRequests)
+        private readonly int limited = 1225;
+        private int currentIndex = 0;
+        public int currentCount { get => currentIndex; set => currentIndex = value; }
+
+        public ItemsServices(IServiceProvider _serviceProvider, IMyHttpRequests _httpRequests, IDatabaseServices _databaseServices, ILoadData _load, ILoggerServices loggerServices)
         {
-            _serviceProvider = serviceProvider;
-            _httpRequests = httpRequests;
-
+            serviceProvider  = _serviceProvider;
+            httpRequests     = _httpRequests;
+            databaseServices = _databaseServices;
+            load             = _load;
+            this.loggerServices=loggerServices;
         }
 
         #region Get All
         public async Task<MyItem[]> GetItemsAsync()
         {
-            // Set format api call api class and method.
-            string url = string.Format(FORMATS.URL_HOME, ClassName, MethodGetAll);
-            MyItemRequest bodyData = new()
+            await databaseServices.GetItems();
+            return await Task.FromResult(databaseServices.items.ToArray());
+        }
+
+        public async Task<MyItem[]> GetNext()
+        {
+            try
             {
-                item_name = "GetAll",
-                item_image = "GetAll",
-            };
+                await databaseServices.GetItems();
+                MyItem[] array = databaseServices.items.Skip(limited * currentCount).Take(limited).ToArray();
 
-            string jsonData = JsonConvert.SerializeObject(bodyData);
-            _httpRequests.timeOut = 250;
-            var result = await _httpRequests.PutAsync(url, jsonData);
+                if (array.Length == 0)
+                    return null;
+                currentCount++;
 
-            if (result.Item1)
+
+                for (int i = 0; i < array.Length; i++)
+                    await array[i].reloadImage();
+
+                return await Task.FromResult(array);
+            }catch (Exception ex)
             {
-                if (result.Item2.Contains("getall"))
-                {
-                    if (result.Item2.Contains("status") || result.Item2.Contains("message") || result.Item2.Contains("error"))
-                    {
-                        package = JsonConvert.DeserializeObject<ItemPackage>(result.Item2);
+                Console.WriteLine(ex.ToString());
+            }
+            return null;
+        }
+        public async Task<MyItem[]> GetBack()
+        {
+            await databaseServices.GetItems();
+            // Calculate the ending index for the previous items
+            int endIndex = (currentCount * limited) - limited;
 
-                        MyItem[] array = new MyItem[package.Items.Length];
-                        int index = 0;
-                        foreach (var item in package.Items)
-                        {
-                            using (var scope = _serviceProvider.CreateScope())
-                            {
-                                var itemNew = scope.ServiceProvider.GetRequiredService<MyItem>();
-                                itemNew.Id  = item.Id;
-                                itemNew.Item_cate = item.Item_cate;
-                                itemNew.Item_name = item.Item_name;
-                                itemNew.Item_price = item.Item_price;
-                                itemNew.Item_quantity = item.Item_quantity;
-                                itemNew.Item_image = item.Item_image;
-                                itemNew.Item_create_date = item.Item_create_date;
-                                itemNew.Item_expire_date = item.Item_expire_date;
-                                itemNew.Item_price_buy = item.Item_price_buy;
-
-
-                                itemNew.Create_date = DateTime.TryParse(item.Item_create_date, out DateTime created) ? created : DateTime.Now;
-                                itemNew.Expire_date = DateTime.TryParse(item.Item_expire_date, out DateTime createdTo) ? createdTo : DateTime.Now;
-                                array[index] = itemNew;
-                                index++;
-                            }
-                        }
-
-                        package.Items  = array;
-                        return await Task.FromResult(package.Items);
-                    }
-                }
+            // Check if the endIndex is negative and set it to 0 if necessary
+            if (endIndex < 0)
+            {
+                endIndex = 0;
             }
 
-            return await Task.FromResult<MyItem[]>(null);
+            // Take the previous 'limited' items starting from the calculated endIndex.
+            MyItem[] array = databaseServices.items.Skip(endIndex).Take(limited).ToArray();
+            if (array.Length == 0)
+                return null;
+
+            for (int i = 0; i < array.Length; i++)
+                await array[i].reloadImage();
+
+            // Update the currentCount for the next retrieval
+            currentCount--;
+            return await Task.FromResult(array);
         }
         #endregion
 
+
         #region Insert a new 
-        public async Task<ItemPackage> InsertAsync(int item_cate, string item_name, double item_price, string item_image, int item_quantity, string item_expire_date, double item_price_buy)
+        public async Task<(bool, MyItem)> InsertAsync(int item_cate, string item_name, double item_price, string item_image, int item_quantity, string item_expire_date, double item_price_buy)
         {
-            var result_post = await _httpRequests.ImagePostAsync(FORMATS.URL_POST_ITEMS_IMAGES, item_image, item_name);
-            if (!result_post)
+            try
             {
-                await Shell.Current.DisplayAlert("INFO","Something wrong wiht upload image to websocket try again later..", "OK");
-                return await Task.FromResult(package);
-            }
-
-            string url = string.Format(FORMATS.URL_HOME, ClassName, MethodInsert);
-            MyItemRequest bodyData = new()
-            {
-                item_cate = item_cate,
-                item_name = item_name,
-                item_price = item_price,
-                item_image = string.Format("{0}{1}", item_name, Path.GetExtension(item_image)),
-                item_quantity = item_quantity,
-                item_expire_date = item_expire_date,
-                item_price_buy = item_price_buy
-            };
-
-            string jsonData = JsonConvert.SerializeObject(bodyData);
-            var result = await _httpRequests.PutAsync(url, jsonData);
-            if (result.Item1)
-            {
-                if (result.Item2.Contains("status") || result.Item2.Contains("message")  || result.Item2.Contains("error"))
+                var result_post = await httpRequests.ImagePostAsync(FORMATS.URL_POST_ITEMS_IMAGES, item_image, item_name);
+                if (!result_post)
                 {
-                    package = JsonConvert.DeserializeObject<ItemPackage>(result.Item2);
-                    return await Task.FromResult(package);
+                    await Shell.Current.DisplayAlert("INFO", "Something wrong wiht upload image to websocket try again later..", "OK");
+                    return (false, null);
+                }
+
+                MyItem bodyData = serviceProvider.GetService<MyItem>();
+                bodyData.Item_cate = item_cate;
+                bodyData.Item_name = item_name;
+                bodyData.Item_price = item_price;
+                bodyData.Item_image = string.Format("{0}{1}", item_name, Path.GetExtension(item_image));
+                bodyData.Item_quantity = item_quantity;
+                bodyData.Item_expire_date = item_expire_date;
+                bodyData.Item_price_buy = item_price_buy;
+
+
+                using (var connection = databaseServices.GetConnection())
+                {
+                    string query = "INSERT INTO items (item_cate, item_name, item_price, item_image, item_quantity, item_expire_date, item_price_buy, item_create_date) VALUES (@item_cate, @item_name, @item_price, @item_image, @item_quantity, @item_expire_date, @item_price_buy, NOW())";
+                    var execute = await connection.ExecuteAsync(query, new { item_cate = bodyData.Item_cate, item_name = bodyData.Item_name, item_price = bodyData.Item_price, item_image = bodyData.Item_image, item_quantity = bodyData.Item_quantity, item_expire_date = bodyData.Item_expire_date, item_price_buy = bodyData.Item_price_buy });
+                    if (execute > 0)
+                    {
+                        query = "SELECT * FROM items WHERE item_name=@item_name";
+                        var result = await connection.QueryAsync<CategoryRequest>(query, new { item_name = bodyData.Item_name});
+
+                        if (result != null && result.Count() > 0)
+                        {
+                            var first = result.First();
+                            bodyData.Id = first.id;
+                        }
+
+                        databaseServices.items.Add(bodyData);
+                        await load.ReloadingData();
+                        await bodyData.reloadImage();
+                        return await Task.FromResult((true, bodyData));
+                    }
                 }
             }
-
-            return await Task.FromResult(package);
+            catch(Exception ex)
+            {
+                await Console.Out.WriteLineAsync($"Error Service Items :{ex}");
+            }
+            return (false, null);
         }
         #endregion
 
         #region Delete Item
         public async Task<bool> Del(int id)
         {
-            string url = string.Format(FORMATS.URL_HOME, ClassName, MethodDel);
-            MyItemRequest bodyData = new MyItemRequest()
-            {
-                Id = id
-            };
 
-            string jsonData = JsonConvert.SerializeObject(bodyData);
-            var result = await _httpRequests.PutAsync(url, jsonData);
-            if (result.Item1)
+            using (var connection = databaseServices.GetConnection())
             {
-                return await Task.FromResult(true);
+                string query = "DELETE FROM items WHERE id =@Id";
+                var execute = await connection.ExecuteAsync(query, new { Id = id });
+                if (execute > 0)
+                {
+                    await load.DelItemImage(id);
+                    var item = databaseServices.items.Where(x => x.Id == id).FirstOrDefault();
+                    if (item != null)
+                    {
+                        await loggerServices.Insert($"Del item in item name {item.Item_name}", "1");
+                        databaseServices.items.Remove(item);
+                        return true;
+                    }
+                }
+
+                return await Task.FromResult(false);
             }
-
-            return await Task.FromResult(false);
         }
         #endregion
     }

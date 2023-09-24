@@ -11,7 +11,7 @@
             <Grid BackgroundColor="Black"
                   HeightRequest="200">
                 <Image Aspect="AspectFill"
-                       Source="test.svg"
+                       Source="icon_logo.png"
                        Opacity="0.6" />
                 <Label Text="System BlackCat"
                        TextColor="White"
@@ -23,27 +23,27 @@
     </Shell.FlyoutHeaderTemplate>
 
     <FlyoutItem FlyoutDisplayOptions="AsMultipleItems">
-        <ShellContent  Content="{Binding HomePage}" Title="Home" Route="HomePage">
+        <ShellContent x:Name="HomePage" Title="الرئيسية" Route="HomePage">
             <ShellContent.Icon>
                 <FontImageSource FontFamily="Icons" Color="Black" Glyph="&#xE810;"/>
             </ShellContent.Icon>
         </ShellContent>
-        <ShellContent Content="{Binding CategoryPage}" Title="Category"  Route="CategoryPage">
+        <ShellContent x:Name="CategoryPage" Title="الاقسام"  Route="CategoryPage">
             <ShellContent.Icon>
                 <FontImageSource FontFamily="Icons" Color="Black" Glyph="&#xE80F;"/>
             </ShellContent.Icon>
         </ShellContent>
-        <ShellContent  Content="{Binding ItemsPage}" Title="Items"  Route="ItemsPage">
+        <ShellContent  x:Name="ItemsPage" Title="المنتجات"  Route="ItemsPage">
             <ShellContent.Icon>
                 <FontImageSource FontFamily="Icons" Color="Black" Glyph="&#xF0C5;"/>
             </ShellContent.Icon>
         </ShellContent>
-        <ShellContent  Content="{Binding PaymentPage}" Title="Payment" Route="PaymentPage">
+        <ShellContent  x:Name="PaymentPage" Title="المدفوع" Route="PaymentPage">
             <ShellContent.Icon>
                 <FontImageSource FontFamily="Icons" Color="#00743F" Glyph="&#xF155;"/>
             </ShellContent.Icon>
         </ShellContent>
-        <ShellContent  Content="{Binding HistoryPage}" Title="History" Route="HistoryPage">
+        <ShellContent  x:Name="HistoryPage" Title="السجل" Route="HistoryPage">
             <ShellContent.Icon>
                 <FontImageSource FontFamily="Icons" Color="Black" Glyph="&#xF1DA;"/>
             </ShellContent.Icon>

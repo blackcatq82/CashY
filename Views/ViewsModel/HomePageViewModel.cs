@@ -1,34 +1,28 @@
-﻿using CashY.Model;
-using CashY.Services;
+﻿using CashY.Services;
 using CashY.ViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Dapper;
 
 namespace CashY.Views.ViewsModel
 {
     public partial class HomePageViewModel : NewBaseViewModel
     {
-        AccountPackage accountPackage;
-        public AccountPackage AccountPackage
-        {
-            get { return accountPackage; }
-            set { SetProperty(ref accountPackage, value); }
-        }
-
         [ObservableProperty]
         private int countCategorys;
-
-
         [ObservableProperty]
         private int countItems;
+        [ObservableProperty]
+        private int countHistory;
+        [ObservableProperty]
+        private int countPayment;
 
+        [ObservableProperty]
+        private double totalPrice;
 
-        private ICategoryServices categoryServices;
-        private IItemsServices itemsServices;
-        public HomePageViewModel(ICategoryServices categoryServices, IItemsServices itemsServices)
+        private readonly IDatabaseServices databaseServices;
+        public HomePageViewModel(IDatabaseServices databaseServices)
         {
-            this.itemsServices=itemsServices;
-            this.categoryServices=categoryServices;
-            AccountPackage = AccountHelper.package;
+            this.databaseServices = databaseServices;
         }
 
 
@@ -36,15 +30,17 @@ namespace CashY.Views.ViewsModel
         {
             try
             {
-                CountCategorys = 0;
-                CountItems = 0;
+                CountCategorys = databaseServices.categories.Count();
+                CountItems     = databaseServices.items.Count();
+                CountPayment   = databaseServices.payments.Count();
+                CountHistory   = databaseServices.loggers.Count();
 
 
-                var result = await categoryServices.GetCategoriesAsync();
-                CountCategorys = result.Count();
-
-                var resultt = await itemsServices.GetItemsAsync();
-                CountItems = resultt.Count();
+                using(var connection =  databaseServices.GetConnection())
+                {
+                    string query = "SELECT SUM(price) AS total_price FROM payments WHERE date_create >= DATE_SUB(NOW(), INTERVAL 30 DAY);";
+                    TotalPrice = await connection.ExecuteScalarAsync<double>(query);
+                }
             }
             catch (Exception ex)
             {

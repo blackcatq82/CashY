@@ -2,77 +2,140 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CashY.Views.HomePage"
-             Title="Home">
-    <AbsoluteLayout>
-
-
+             Title="الرئيسية">
+    <Grid RowDefinitions=".3*,.3*,.3*" ColumnDefinitions=".5*,.5*">
         <RoundRectangle
-            AbsoluteLayout.LayoutBounds="2,80, 180, 180"
-            Fill="#323232"
-            CornerRadius="24"/>
-
-        <Label Text="Categorys"
-               FontAttributes="Bold"
-               FontSize="24"
-               TextColor="White"
-               AbsoluteLayout.LayoutBounds="24,120, 180, 180" />
-        <Label Text="{Binding CountCategorys}"
-               FontAttributes="Bold"
-               FontSize="34"
-               TextColor="White"
-               AbsoluteLayout.LayoutBounds="44,150, 180, 180" />
-
-        <RoundRectangle
-            AbsoluteLayout.LayoutBounds="190,80, 180, 180"
-            Fill="#00743F"
-            CornerRadius="24"/>
-
-        <Label Text="Items"
-               FontAttributes="Bold"
-               FontSize="24"
-               TextColor="White"
-               AbsoluteLayout.LayoutBounds="210,120, 180, 180" />
-        <Label Text="{Binding CountItems}"
-               FontAttributes="Bold"
-               FontSize="34"
-               TextColor="White"
-               AbsoluteLayout.LayoutBounds="240,150, 180, 180"  />
-        
-        
-        
-        <RoundRectangle
-            AbsoluteLayout.LayoutBounds="2,320, 180, 180"
-            Fill="#0DBA6A"
-            CornerRadius="24"/>
-
-
-        <Label Text="Payments"
-               FontAttributes="Bold"
-               FontSize="24"
-               TextColor="White"
-               AbsoluteLayout.LayoutBounds="24,360, 180, 180" />
-        <Label Text="0"
-               FontAttributes="Bold"
-               FontSize="34"
-               TextColor="White"
-               AbsoluteLayout.LayoutBounds="44,390, 180, 180"  />
-
-        <RoundRectangle
-            AbsoluteLayout.LayoutBounds="190,320, 180, 180"
+            Grid.Row="0"
+            Grid.Column="0"
+            WidthRequest="175"
+            HeightRequest="200"
             Fill="#3373B2"
             CornerRadius="24"/>
-
-
-        <Label Text="Historys"
+        <StackLayout Grid.Row="0" 
+                     HorizontalOptions="CenterAndExpand"
+                     VerticalOptions="CenterAndExpand"
+                     Grid.Column="0">
+            <Label Text="عدد الاقسام"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
                FontAttributes="Bold"
                FontSize="24"
-               TextColor="White"
-               AbsoluteLayout.LayoutBounds="210,360, 180, 180" />
-        <Label Text="0"
+               TextColor="White" />
+
+            <Label Text="{Binding CountCategorys}"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
                FontAttributes="Bold"
                FontSize="34"
-               TextColor="White"
-               AbsoluteLayout.LayoutBounds="240,390, 180, 180"  />
+               TextColor="White" />
+        </StackLayout>
 
-    </AbsoluteLayout>
+        <RoundRectangle
+            WidthRequest="175"
+            HeightRequest="200"
+            Grid.Row="0"
+            Grid.Column="1"
+            Fill="#D44846"
+            CornerRadius="24"/>
+        <StackLayout Grid.Row="0" 
+                     HorizontalOptions="CenterAndExpand"
+                     VerticalOptions="CenterAndExpand"
+                     Grid.Column="1">
+            <Label Text="عدد المنتجات"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               FontAttributes="Bold"
+               FontSize="24"
+               TextColor="White" />
+
+            <Label Text="{Binding CountItems}"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               FontAttributes="Bold"
+               FontSize="34"
+               TextColor="White" />
+        </StackLayout>
+
+
+        <RoundRectangle
+            WidthRequest="175"
+            HeightRequest="200"
+            Grid.Row="1"
+            Grid.Column="0"
+            Fill="#00743F"
+            CornerRadius="24"/>
+        <StackLayout Grid.Row="1" 
+                     HorizontalOptions="CenterAndExpand"
+                     VerticalOptions="CenterAndExpand"
+                     Grid.Column="0">
+            <Label Text="عدد عمليات الدفع"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               FontAttributes="Bold"
+               FontSize="24"
+               TextColor="White" />
+
+            <Label Text="{Binding CountPayment}"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               FontAttributes="Bold"
+               FontSize="34"
+               TextColor="White" />
+        </StackLayout>
+
+
+
+        <RoundRectangle
+            WidthRequest="175"
+            HeightRequest="200"
+            Grid.Row="1"
+            Grid.Column="1"
+            Fill="#323232"
+            CornerRadius="24"/>
+        <StackLayout Grid.Row="1" 
+                     HorizontalOptions="CenterAndExpand"
+                     VerticalOptions="CenterAndExpand"
+                     Grid.Column="1">
+            <Label Text="السجل العام"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               FontAttributes="Bold"
+               FontSize="24"
+               TextColor="White" />
+
+            <Label Text="{Binding CountHistory}"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               FontAttributes="Bold"
+               FontSize="34"
+               TextColor="White" />
+        </StackLayout>
+
+
+        <RoundRectangle
+            Margin="5"
+            Grid.Row="2"
+            Grid.ColumnSpan="3"
+            Fill="#0DBA6A"
+            CornerRadius="24"/>
+        <StackLayout Grid.Row="2" 
+                     HorizontalOptions="CenterAndExpand"
+                     VerticalOptions="CenterAndExpand"
+                     Grid.ColumnSpan="3">
+            <Label Text="خلال 30 يوم"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               FontAttributes="Bold"
+               FontSize="24"
+               TextColor="White" />
+
+            <Label Text="{Binding TotalPrice, StringFormat='{0} K.D'}"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               FontAttributes="Bold"
+               FontSize="34"
+               TextColor="White" />
+        </StackLayout>
+
+    </Grid>
 </ContentPage>

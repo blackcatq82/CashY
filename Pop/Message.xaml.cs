@@ -1,7 +1,5 @@
 using CommunityToolkit.Maui.Views;
-
 namespace CashY.Pop;
-
 public partial class Message : Popup
 {
     public Message(MessageViewModel vm)

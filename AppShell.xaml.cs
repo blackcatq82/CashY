@@ -1,22 +1,35 @@
-﻿using CashY.ViewModels;
-using CashY.Views;
+﻿using CashY.Views;
 namespace CashY;
 
 public partial class AppShell : Shell
 {
-    private IServiceProvider provider { get; set; }
-    public AppShell(ShellViewModel vm, IServiceProvider provider)
+    public readonly HomePage homePage;
+    public readonly CategoryPage categoryPage;
+    public readonly ItemsPage itemsPage;
+    public readonly PaymentPage paymentPage;
+    public readonly HistoryPage historyPage;
+    private readonly IServiceProvider provider;
+    public AppShell(IServiceProvider provider, HomePage homePage, CategoryPage categoryPage, ItemsPage itemsPage, PaymentPage paymentPage, HistoryPage historyPage)
     {
-        /// Injection Services
-        BindingContext = vm;
-        this.provider = provider;
-
         /// init
         InitializeComponent();
 
+        this.provider = provider;
 
-        /// register a pages item's
-        //RegisterPages();
+
+        // pages
+        this.homePage = homePage;
+        this.categoryPage = categoryPage;
+        this.itemsPage = itemsPage;
+        this.paymentPage = paymentPage;
+        this.historyPage = historyPage;
+
+        // injection pages
+        this.HomePage.Content = this.homePage;
+        this.CategoryPage.Content = this.categoryPage;
+        this.ItemsPage.Content = this.itemsPage;
+        this.PaymentPage.Content = this.paymentPage;
+        this.HistoryPage.Content = this.historyPage;
     }
 
     /// <summary>
@@ -29,36 +42,4 @@ public partial class AppShell : Shell
         // Push the new page onto the navigation stack
         App.Current.MainPage = provider.GetRequiredService<Login>();
     }
-
-    #region Register Page's
-    /// <summary>
-    ///  Init register a page's
-    /// </summary>
-    //private void RegisterPages()
-    //{
-    //    /// using the scope services injection.
-    //    using (var scope = provider.CreateScope())
-    //    {
-    //        // register home Page
-    //        //RegisterPage<HomePage>(HomePage);
-    //        //RegisterPage<CategoryPage>(CategoryPage);
-    //        //RegisterPage<ItemsPage>(ItemsPage);
-    //        //RegisterPage<PaymentPage>(PaymentPage);
-    //        //RegisterPage<HistoryPage>(HistoryPage);
-    //    }
-    //}
-
-    /// <summary>
-    /// Register page in Content Shell.
-    /// </summary>
-    /// <typeparam name="T">type page in injection</typeparam>
-    /// <param name="shell">property item ShellContent</param>
-    //public void RegisterPage<T>(ShellContent shell) where T : class
-    //{
-    //    using (var scope = provider.CreateScope())
-    //    {
-    //        shell.Content = scope.ServiceProvider.GetRequiredService(typeof(T));
-    //    }
-    //}
-    #endregion
 }

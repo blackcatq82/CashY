@@ -2,11 +2,29 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CashY.Views.PaymentPage"
-             Title="Payment">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             xmlns:PaymentViews="clr-namespace:CashY.ContentViews.PaymentViews"
+             Title="المدفوعات">
+    <Grid HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" RowDefinitions=".1*,.8*,.1*">
+        <BoxView Grid.Row="0" HeightRequest="20" BackgroundColor="White" />
+        <ScrollView 
+            Grid.Row="1"
+            Orientation="Vertical" 
+            HorizontalOptions="CenterAndExpand"
+            VerticalOptions="FillAndExpand">
+            <VerticalStackLayout>
+                <CollectionView  
+                    SelectionMode="None"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="FillAndExpand"
+                    ItemsSource="{Binding Payments, Mode=OneWay}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate >
+                            <PaymentViews:ItemPayment BindingContext="{Binding ., Mode=OneWay}"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+        <BoxView Grid.Row="2" HeightRequest="20" BackgroundColor="White" />
+    </Grid>
 </ContentPage>

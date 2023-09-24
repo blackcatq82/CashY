@@ -4,7 +4,8 @@
              x:Class="CashY.Views.ItemsPage"
              xmlns:Converter="clr-namespace:CashY.MyConverter"
              xmlns:itemView="clr-namespace:CashY.ContentViews.ItemViews"
-             Title="Items">
+             xmlns:Models="clr-namespace:CashY.Model.Items.Items"
+             Title="المنتجات">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -21,20 +22,11 @@
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
-
-    <AbsoluteLayout>
-
-        <!--
-        START
-        Search Bar and Label
-        -->
-        <Label 
-            AbsoluteLayout.LayoutBounds="20, 10"
-            TextColor="Black"
-            Text="Search By name" />
+    <Grid HorizontalOptions="CenterAndExpand" RowDefinitions=".1*, .9*">
         <SearchBar 
+            Grid.Row="0"
+            HeightRequest="60"
             x:Name="searchBar"
-            AbsoluteLayout.LayoutBounds="10, 40, 360, 40"
             BackgroundColor="White"
             PlaceholderColor="Silver"
             TextColor="Black"
@@ -42,91 +34,25 @@
             SearchCommand="{Binding search, Mode=OneWay}"
             SearchCommandParameter="{Binding Text, Source={x:Reference searchBar}}"
             Placeholder="Search items!" />
-        <!--
-        END
-        Search Bar and Label
-        -->
-
-
-
-        <!--
-        START
-        Scroll View
-        -->
         <ScrollView 
-            Scrolled="OnScrollViewScrolled"
-            IsVisible="{Binding IsSearching, Mode=OneWay, Converter={StaticResource TrueToFalse}}"
-            AbsoluteLayout.LayoutBounds="20,90, 340, 560"
+            Grid.Row="1" 
+            x:Name="MyScrollView"
             Orientation="Vertical" 
+            HorizontalOptions="CenterAndExpand"
             VerticalOptions="FillAndExpand">
-            <!--
-            START
-            Flex Layout
-            -->
-            <FlexLayout 
-                AlignContent="Start"
-                AlignItems="Start"
-                Direction="Column"
-                HorizontalOptions="Start"
-                JustifyContent="Start"
-                Wrap="NoWrap"
-                BindableLayout.ItemsSource="{Binding Items, Mode=OneWay}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate>
-                        <itemView:ItemsViewItem BindingContext="{Binding ., Mode=OneWay}"/>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </FlexLayout>
-            <!--
-            START
-            Flex Layout
-            -->
+            <VerticalStackLayout>
+                <CollectionView  
+                    SelectionMode="None"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="FillAndExpand"
+                    ItemsSource="{Binding Items, Mode=OneWay}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate >
+                            <itemView:ItemsViewItem BindingContext="{Binding ., Mode=OneWay}"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
         </ScrollView>
-        <!--
-        END
-        Scroll View
-        -->
-
-
-        <!--
-        START
-        SEARCH VIEW
-        Scroll View
-        -->
-        <ScrollView 
-            Scrolled="OnScrollViewScrolled"
-            IsVisible="{Binding IsSearching, Mode=OneWay}"
-            AbsoluteLayout.LayoutBounds="20,90, 340, 560"
-            Orientation="Vertical" 
-            VerticalOptions="FillAndExpand">
-            <!--
-            START
-            Flex Layout
-            -->
-            <FlexLayout 
-                Direction="Column"
-                HorizontalOptions="Center"
-                BindableLayout.ItemsSource="{Binding FilteredItems, Mode=OneWay}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate>
-                        <itemView:ItemsViewItem BindingContext="{Binding ., Mode=OneWay}"/>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </FlexLayout>
-            <!--
-            START
-            Flex Layout
-            -->
-        </ScrollView>
-
-        <!--
-        <Button IsEnabled="{Binding HasNextPage, Mode=OneWay}" Command="{Binding nextPage}" AbsoluteLayout.LayoutBounds="245,600" Text="Next Page" />
-        <Button IsEnabled="False" AbsoluteLayout.LayoutBounds="165,600" Text="{Binding CurrentPage, StringFormat='Page {0}'}" />
-        <Button  IsEnabled="{Binding HasPreviousPage, Mode=OneWay}" Command="{Binding previousPage}" AbsoluteLayout.LayoutBounds="70,600" Text="Previous" />
-        -->
-        <!--
-        END
-        Scroll View
-        -->
-    </AbsoluteLayout>
+    </Grid>
 </ContentPage>

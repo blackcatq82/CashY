@@ -1,9 +1,7 @@
-﻿using CashY.Model;
-using CashY.ViewModels;
+﻿using CashY.ViewModels;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Maui.Views;
 using CashY.Pop.Category;
-using CashY.Pop;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CashY.Model.Items;
@@ -12,8 +10,6 @@ namespace CashY.Views.ViewsModel
 {
     public partial class CategoryPageViewModel : NewBaseViewModel
     {
-        private Category[] baseArrayItems;
-
         [ObservableProperty]
         private bool isRefreshing;
         [ObservableProperty]
@@ -28,8 +24,8 @@ namespace CashY.Views.ViewsModel
         [ObservableProperty]
         private ObservableCollection<Category> filteredCategories;
 
-        // Reload
-        public IAsyncRelayCommand reloadCategory { get; set; }
+        [ObservableProperty]
+        private bool isLoading;
 
         // Create
         public IAsyncRelayCommand addnewCategory { get; set; }
@@ -37,175 +33,125 @@ namespace CashY.Views.ViewsModel
         // search
         public IAsyncRelayCommand search { get; set; }
 
-        // refresh
-        public IAsyncRelayCommand refreshCommand { get; set; }
-
         // Serivces
-        private IServiceProvider serviceProvider { get; set; }
-
-        // category service
-        private ICategoryServices categoryServices { get; set; }
-
-        // Popup Busy indicator
-        private BusyIndicator busyIndicator { get; set; }
-
+        private readonly IServiceProvider serviceProvider;
+        private readonly ILoadData load;
+        private readonly IPopupServices popupServices;
+        private readonly IDatabaseServices databaseServices;
         // ctor
-        public CategoryPageViewModel(ICategoryServices categoryServices, IServiceProvider serviceProvider)
+        public CategoryPageViewModel(IDatabaseServices databaseServices, IPopupServices popupServices, IServiceProvider serviceProvider, ILoadData load)
         {
             // Set services
-            this.categoryServices = categoryServices;
             this.serviceProvider  = serviceProvider;
+            this.popupServices    = popupServices;
+            this.load             = load;
+            this.databaseServices = databaseServices;
 
             // Set array items
             categorys          = new ObservableCollection<Category>();
             FilteredCategories = new ObservableCollection<Category>();
 
             // Handler Async Relay Commands
-            reloadCategory     = new AsyncRelayCommand(LoadCategorysExecute);
             addnewCategory     = new AsyncRelayCommand(OpenCreateNewCategory);
-            refreshCommand     = new AsyncRelayCommand(ExecuteRefreshCommand);
 
             // search
             search = new AsyncRelayCommand<string>(SearchByName);
         }
 
-        private async Task ExecuteRefreshCommand()
-        {
-            // Set IsRefreshing to true to show the refresh indicator
-            IsRefreshing = true;
-
-            try
-            {
-                // Perform your refresh logic here
-                await LoadCategorys();
-            }
-            catch (Exception ex)
-            {
-                // Handle any exceptions that may occur during the refresh
-
-                // Optionally, you can display an error message or log the exception.
-            }
-            finally
-            {
-                // Set IsRefreshing to false to hide the refresh indicator
-                IsRefreshing = false;
-            }
-        }
-        private async Task SearchByName(string cate_name)
-        {
-            if (string.IsNullOrEmpty(cate_name)) return;
-
-            await ShowBusyIndicator();
-
-            string searchText = cate_name.ToLower();
-
-            if (!string.IsNullOrWhiteSpace(searchText))
-            {
-                IsSearching = true;
-
-                // get result from respone api get categorys.
-                var result = await categoryServices.GetCategoriesAsync();
-
-                // check if the result not nullable or empty.
-                if (result != null || result.Length == 0)
-                    baseArrayItems = result;
-
-                var filteredList = baseArrayItems.Where(category => category.Cate_name.ToLower().Contains(searchText)).ToList();
-                FilteredCategories = new ObservableCollection<Category>(filteredList);
-            }
-            else
-            {
-                IsSearching = false;
-                FilteredCategories = new ObservableCollection<Category>(Categorys);
-            }
-
-
-            if (busyIndicator is not null)
-            {
-                await busyIndicator.CloseAsync();
-                busyIndicator = null;
-            }
-        }
-        // Insert function
         private async Task OpenCreateNewCategory()
         {
-            using(var scope = serviceProvider.CreateScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 var cateInsert = scope.ServiceProvider.GetRequiredService<CateInsert>();
                 await Shell.Current.ShowPopupAsync(cateInsert);
             }
         }
 
+
         /// <summary>
         /// Reload a category
         /// </summary>
         /// <returns></returns>
         public async Task LoadCategorysExecute()  => await LoadCategorys();
-        public async Task LoadCategorys(bool hasPopScreen = false)
+        public async Task LoadCategorys()
         {
             try
             {
                 if (IsBusy) return;
                 IsBusy = true;
-
-                if (!hasPopScreen)
-                {
-                    // Start to show Busy Indicator.
-                    await ShowBusyIndicator();
-                }
-                // get result from respone api get categorys.
-                var result = await categoryServices.GetCategoriesAsync();
-
                 // clear array items.
                 Categorys.Clear();
 
                 // check if the result not nullable or empty.
-                if (result != null || result.Length == 0)
+                if (databaseServices.categories != null || databaseServices.categories.Count == 0)
                 {
-                    foreach (var category in result)
+                    foreach (var category in databaseServices.categories)
                     {
-                        if(category.ImageSource == null)
+                        await category.ReloadImage();
+                        if (category.ImageSource == null)
                             category.ImageSource = ImageSource.FromFile("dotnet_bot.png");
 
                         Categorys.Add(category);
                     }
+                    IsLoading = true;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex.Message}");
+                Console.WriteLine($"On Load Category mvvm : {ex.Message}");
             }
             finally
             {
                 IsBusy = false;
+            }
 
-                // busy indicator close
-                if (!hasPopScreen)
+            return;
+        }
+        private async Task SearchByName(string cate_name)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(cate_name)) return;
+                var categorypage = serviceProvider.GetRequiredService<CategoryPage>();
+                popupServices.Show(categorypage);
+
+                string searchText = cate_name.ToLower();
+
+                if (!string.IsNullOrWhiteSpace(searchText))
                 {
-                    await busyIndicator.CloseAsync();
-                    busyIndicator = null;
+                    IsSearching = true;
+                    if (IsBusy) return;
+                    IsBusy = true;
+
+                    if (databaseServices.categories == null || databaseServices.categories.Count == 0)
+                    {
+                        await GetDataSocket();
+                    }
+
+                    var filteredList = databaseServices.categories.Where(category => category.Cate_name.ToLower().Contains(searchText)).ToList();
+                    foreach (var category in filteredList)
+                    {
+                        await category.ReloadImage();
+                    }
+                    Categorys = new ObservableCollection<Category>(filteredList);
                 }
+                else
+                {
+                    IsSearching = false;
+                    await LoadCategorysExecute();
+                }
+
+            }
+            finally
+            {
+                popupServices.Close();
             }
         }
 
-        /// <summary>
-        /// Show Busy Indicator Popup!
-        /// </summary>
-        private Task ShowBusyIndicator()
+        public async Task GetDataSocket()
         {
-            if (busyIndicator is not null)
-                return Task.CompletedTask;
-
-            using (var Scope = serviceProvider.CreateScope())
-            {
-                busyIndicator = Scope.ServiceProvider.GetService<BusyIndicator>();
-                if (busyIndicator is not null)
-                {
-                    Shell.Current.ShowPopup(busyIndicator);
-                }
-            }
-
-            return Task.CompletedTask;
+            await load.ReloadingData();
+            await LoadCategorysExecute();
         }
     }
 }

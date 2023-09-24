@@ -1,8 +1,8 @@
-﻿using CashY.Core;
-using CashY.Model;
-using CashY.Pop;
-using CommunityToolkit.Maui.Views;
-using Newtonsoft.Json;
+﻿using CashY.Model;
+using Dapper;
+using System.Security.Cryptography;
+using System.Text;
+
 namespace CashY.Services
 {
     /// <summary>
@@ -24,22 +24,15 @@ namespace CashY.Services
     /// </summary>
     public class LoginService : ILoginService
     {
-        // API KEY CLASS & METHOD
-        const string ClassName = "Account";
-        const string MethodName = "Login";
-
-        // JSON MODEL ACCOUNT PACKAGE
-        public AccountPackage package { get; set; }
 
         // SERVICES PROVIDER
-        private IConnection connection { get;  set; }
-        private IMyHttpRequests httpRequests { get;  set; }
-
+        private readonly IConnection connection;
+        private readonly IDatabaseServices databaseServices;
         // CTOR
-        public LoginService(IConnection connection, IMyHttpRequests httpRequests)
+        public LoginService(IConnection connection, IDatabaseServices databaseServices)
         {
             this.connection = connection;
-            this.httpRequests = httpRequests;
+            this.databaseServices=databaseServices;
         }
 
         /// <summary>
@@ -55,36 +48,10 @@ namespace CashY.Services
                 // Get account information from api
                 var items = await GetAccount(username, password);
 
-                // get respone items from task async
-                AccountPackage accountPackage = items.Item1;
-                ErrorAccountFlag ErrorFlag = items.Item2;
-
-                // check flag is no ok status
-                if (ErrorFlag != ErrorAccountFlag.OK)
-                {
-                    return (false, FORMATS.MSG_DISCONNECTED);
-                }
+                if (items)
+                    return (true, "Walcome again");
                 else
-                {
-                    // Check if nullable json model
-                    if (accountPackage != null)
-                    {
-                        // Check respone error message from api.
-                        if (!string.IsNullOrEmpty(accountPackage.error))
-                        {
-                            return (false, accountPackage.error);
-                        }
-                        else
-                        {
-                            return (true, accountPackage.message);
-                        }
-                    }
-                    else
-                    {
-                        // send message popup
-                        return (false, FORMATS.MSG_DISCONNECTED);
-                    }
-                }
+                    return (false, "Check you information or network!");
             }
             catch (Exception ex) 
             {
@@ -101,36 +68,39 @@ namespace CashY.Services
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        private async Task<(AccountPackage, ErrorAccountFlag)> GetAccount(string username, string password)
+        private async Task<bool> GetAccount(string username, string password)
         {
-            // string format for api path socket
-            string url = string.Format(FORMATS.URL_HOME, ClassName, MethodName);
-
             // check if not connection to networking.
             if (!connection.IsConnected)
             {
-                return await Task.FromResult<(AccountPackage, ErrorAccountFlag)>((null, ErrorAccountFlag.isDisconnected));
+                return false;
             }
 
             AccountRequest bodyData = new()
             {
                 username = username,
-                password = password,
+                password = HashHelper.HashPassword(password),
             };
-
-            string jsonData = JsonConvert.SerializeObject(bodyData);
-            var result = await httpRequests.PutAsync(url, jsonData);
-
-            if (result.Item1)
+            try
             {
-                if (result.Item2.Contains("status") || result.Item2.Contains("message") || result.Item2.Contains("error"))
+
+                using (var connection = databaseServices.GetConnection())
                 {
-                    package = JsonConvert.DeserializeObject<AccountPackage>(result.Item2);
-                    return await Task.FromResult((package, ErrorAccountFlag.OK));
+                    string query = "SELECT * FROM users WHERE username=@username AND password=@password";
+                    var execute = await connection.QueryAsync<AccountRequest>(query, new { username = bodyData.username, password = bodyData.password });
+                    if (execute != null)
+                    {
+                        return true;
+                    }
                 }
             }
+            catch(Exception ex) 
+            {
+                _ = Application.Current.MainPage.DisplayAlert("Error", $"{ex.Message}", "OK!");
+            }
 
-            return await Task.FromResult((package, ErrorAccountFlag.OK));
+
+            return false;
         }
     }
 
@@ -141,5 +111,26 @@ namespace CashY.Services
         Error,
         DidNotRespone,
         OK
+    }
+
+
+    public static class HashHelper
+    {
+        public static string HashPassword(string password)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] inputBytes = Encoding.ASCII.GetBytes(password);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("x2")); // Convert to hexadecimal format
+                }
+
+                return sb.ToString().ToLower();
+            }
+        }
     }
 }

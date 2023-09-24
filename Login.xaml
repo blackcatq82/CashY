@@ -4,78 +4,88 @@
              x:Class="CashY.Login"
              xmlns:skia="clr-namespace:SkiaSharp.Extended.UI.Controls;assembly=SkiaSharp.Extended.UI"
              Title="Login">
-    <AbsoluteLayout VerticalOptions="End"
-                    Padding="0,-200,0,0">
+    <Grid 
+        RowDefinitions=".4*, .6*"
+        x:Name="myGrid">
+        <Grid Grid.Row="0">
+            <StackLayout>
+                <!-- Animation Login -->
+                <skia:SKLottieView
+                x:Name="myAnimation"
+                Source="login_animation.json"
+                HeightRequest="200"
+                WidthRequest="200"
+                RepeatCount="-1"
+                RepeatMode="Restart" />
+                <!-- Title -->
+                <Label Text="System BC" TextColor="Black" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" />
 
-        <!-- border  -->
-        <RoundRectangle 
-            AbsoluteLayout.LayoutBounds="60,210"
+                <!-- Login Title -->
+                <Label Text="Access to your account service!" TextColor="Silver" FontSize="16" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+
+            </StackLayout>
+        </Grid>
+
+        <Grid Grid.Row="1"
+              VerticalOptions="Start"
+              RowDefinitions=".2*, .2*, .2*">
+            <!-- border  -->
+            <RoundRectangle 
+            Grid.RowSpan= "3"
             Fill="#0DBA6A"
             WidthRequest="250"
             HeightRequest="250"
-            CornerRadius="25"
-            Grid.RowSpan="2"/>
-
-        <!-- Animation Login -->
-        <skia:SKLottieView
-            BackgroundColor="Transparent"
-            AbsoluteLayout.LayoutBounds="90, 0"
-            Source="login_animation.json"
-            HeightRequest="200"
-            WidthRequest="200"
-            RepeatCount="-1"
-            RepeatMode="Restart" />
-        
-        
-        <!-- Title -->
-        <Label AbsoluteLayout.LayoutBounds="120,155" Text="System BC" TextColor="Black" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" />
-        
-        <!-- Login Title -->
-        <Label AbsoluteLayout.LayoutBounds="70,220" Text="Access to your account service!" TextColor="White" FontSize="16" FontAttributes="Bold" HorizontalTextAlignment="Center" />
-        
-        
-        
-        <!-- Button Login -->
-        <Button
-            AbsoluteLayout.LayoutBounds="100,440"
-            Text="Login!"
-            Command="{Binding loginclick, Mode=OneWay}"
-            BackgroundColor="#00743F"
-            BorderColor="#0DBA6A"
-            WidthRequest="165" />
-
-        <!-- UserName Labe & Entry -->
-        <Label
-            AbsoluteLayout.LayoutBounds="75,250"
-            Text="Username" 
-            TextColor="White"
-            FontAttributes="Bold"
-            HorizontalTextAlignment="Start"
-            HorizontalOptions="Start"/>
-        <Entry 
-            Text="{Binding Username, Mode=TwoWay}"
-            AbsoluteLayout.LayoutBounds="75,270"
-            BackgroundColor="White"
-            Placeholder="Enter Username"
-            WidthRequest="220"
-            HeightRequest="40"/>
+            CornerRadius="25"/>
 
 
-        <!-- Password Labe & Entry -->
-        <Label
-            AbsoluteLayout.LayoutBounds="75,320"
-            TextColor="White"
-            FontAttributes="Bold"
-            Text="Password" 
-            HorizontalTextAlignment="Start"
-            HorizontalOptions="Start"/>
-        <Entry 
-            Text="{Binding Password, Mode=TwoWay}"
-            AbsoluteLayout.LayoutBounds="75,340"
-            BackgroundColor="White"
-            Placeholder="Enter Password"
-            IsPassword="True"
-            WidthRequest="220"
-            HeightRequest="40"/>
-    </AbsoluteLayout>
+
+
+            <!-- Button Login -->
+            <Button
+                Grid.Row="2"
+                Text="Login!"
+                HeightRequest="60"
+                WidthRequest="120"
+                Command="{Binding loginclick, Mode=OneWay}"
+                BackgroundColor="#00743F"
+                BorderColor="#0DBA6A" />
+
+            <!-- UserName Labe & Entry -->
+            <StackLayout Grid.Row="0"
+                         HorizontalOptions="CenterAndExpand"
+                         Orientation="Horizontal">
+                <Label
+                Text="Username" 
+                TextColor="White"
+                FontAttributes="Bold"
+                HorizontalTextAlignment="Center"
+                VerticalTextAlignment="Center"/>
+                <Entry 
+                Text="{Binding Username, Mode=TwoWay}"
+                BackgroundColor="White"
+                Placeholder="Enter Username"
+                WidthRequest="175"
+                HeightRequest="40"/>
+            </StackLayout>
+
+            <StackLayout Grid.Row="1"
+                         HorizontalOptions="CenterAndExpand"
+                         Orientation="Horizontal">
+                <!-- Password Labe & Entry -->
+                <Label
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    Text="Password :" 
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center"/>
+                <Entry 
+                    Text="{Binding Password, Mode=TwoWay}"
+                    BackgroundColor="White"
+                    Placeholder="Enter Password"
+                    IsPassword="True"
+                    WidthRequest="175"
+                    HeightRequest="40"/>
+            </StackLayout>
+        </Grid>
+    </Grid>
 </ContentPage>

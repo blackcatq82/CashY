@@ -9,8 +9,8 @@
             <local:ConvertUrlImageToImageSource x:Key="imageFromString" />
         </ResourceDictionary>
     </ContentView.Resources>
-    
-    <SwipeView HeightRequest="115">
+
+    <SwipeView HeightRequest="155">
         <SwipeView.RightItems>
             <SwipeItems Mode="Reveal">
                 <SwipeItem 
@@ -22,18 +22,19 @@
                 </SwipeItem>
             </SwipeItems>
         </SwipeView.RightItems>
-        <AbsoluteLayout 
-                HorizontalOptions="CenterAndExpand"
-                VerticalOptions="CenterAndExpand">
+        <Grid
+            Padding="10,0,10,0"
+            ColumnDefinitions=".25*, .75*"
+            HorizontalOptions="FillAndExpand"
+            VerticalOptions="FillAndExpand">
             <RoundRectangle
-                AbsoluteLayout.LayoutBounds="10,-40,330,200"
+                Grid.ColumnSpan="2"
                 Fill="#3373B2"
-                HeightRequest="110"
                 CornerRadius="25" />
 
             <Frame 
                 HorizontalOptions="Start"
-                AbsoluteLayout.LayoutBounds="10,5,110,110"
+                Grid.Column="0"
                 CornerRadius="5" 
                 HasShadow="False"
                 WidthRequest="110"
@@ -46,24 +47,14 @@
                 </Image>
             </Frame>
             <Label 
-                HorizontalOptions="End"
-                AbsoluteLayout.LayoutBounds="205,50,110,110"
-                HorizontalTextAlignment="End"
-                VerticalTextAlignment="Center"
-                TextColor="Gold"
-                FontAttributes="Bold"
-                FontSize="Micro"
-                LineBreakMode="NoWrap"
-                Text="{Binding Create_datee, Mode=OneWay, StringFormat='Time Create : {0:yyyy-MM-dd HH:mm:ss}'}" />
-            <Label 
-                HorizontalOptions="End"
-                AbsoluteLayout.LayoutBounds="190,5,110,110"
-                HorizontalTextAlignment="End"
+                Grid.Column="1"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
                 VerticalTextAlignment="Center"
                 TextColor="White"
                 FontAttributes="Bold"
                 FontSize="32"
                 Text="{Binding Cate_name}" />
-        </AbsoluteLayout>
+        </Grid>
     </SwipeView>
 </ContentView>

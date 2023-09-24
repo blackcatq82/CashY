@@ -8,20 +8,12 @@ public partial class PopupInsertItem : ContentPage
 	{
         this.vm = vm;
         BindingContext = vm;
-
         InitializeComponent();
 	}
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
-		await Task.Run(async () =>
-		{
-			await Shell.Current.Dispatcher.DispatchAsync(async () =>
-			{
-				await this.vm.Reload();
-			});
-		});
+		await MainThread.InvokeOnMainThreadAsync(vm.Reload);
     }
 }

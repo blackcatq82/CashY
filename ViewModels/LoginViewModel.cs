@@ -1,6 +1,4 @@
-﻿using CashY.Pop;
-using CashY.Services;
-using CommunityToolkit.Maui.Views;
+﻿using CashY.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 namespace CashY.ViewModels
@@ -13,87 +11,56 @@ namespace CashY.ViewModels
         public string password;
 
         public IAsyncRelayCommand loginclick { get; set; }
-        private ILoginService loginService { get; set; }
-        private IServiceProvider  ServiceProvider { get; set; }
 
-        private AppShell appShell { get; set; }
-        public LoginViewModel(ILoginService loginService, IServiceProvider serviceProvider, AppShell appShell)
+        public readonly ILoginService loginService;
+        public readonly IIPermissionServices _PermissionServices;
+        public readonly IPopupServices popupServices;
+        public readonly AppShell appShell;
+
+        public LoginViewModel(ILoginService loginService, IIPermissionServices _PermissionServices, IPopupServices popupServices, AppShell appShell)
         {
             this.loginService = loginService;
-            this.ServiceProvider=serviceProvider;
+            this._PermissionServices = _PermissionServices;
+            this.popupServices = popupServices;
+
             this.appShell = appShell;
 
-
-            username = "blackcat";
-            password = "Xxionfeng22";
-            loginclick = new AsyncRelayCommand(async () =>
-            {
-                if (IsBusy) return;
-                IsBusy = true;
-                await ShowBusyIndicator();
-                var result = await this.loginService.LoginRequestHttp(username, password);
-
-                if (busyIndicator != null)
-                    busyIndicator.Close();
-
-                if (result.Item1)
-                {
-                    App.Current.MainPage = appShell;
-                }
-                else
-                {
-                    await ShowPopUpMessage(result.Item2, "OK");
-                }
-
-                IsBusy = false;
-            });
+            Username = "blackcat";
+            Password = "Xxionfeng22";
+            loginclick = new AsyncRelayCommand(TaskLoginRequest);
 
         }
 
-
-        private BusyIndicator busyIndicator { get; set; }
-        private async Task<bool> ShowBusyIndicator()
+        private async Task TaskLoginRequest()
         {
+            if (IsBusy) return;
+            IsBusy = true;
 
-            try
+            popupServices.Show(App.Current.MainPage);
+            var result = await loginService.LoginRequestHttp(Username, Password);
+            popupServices.Close();
+
+
+            if (result.Item1)
             {
-                if (busyIndicator != null)
-                {
-                    // busy indicator close
-                    busyIndicator.Close();
-                    busyIndicator = null;
-                }
-
-                using (var scope = ServiceProvider.CreateScope())
-                {
-                    busyIndicator = scope.ServiceProvider.GetRequiredService<BusyIndicator>();
-                    var shellApp = scope.ServiceProvider.GetRequiredService<Login>();
-
-                    if (busyIndicator != null && shellApp != null)
-                    {
-                        await shellApp.Dispatcher.DispatchAsync(new Action(() =>
-                        {
-                            shellApp.ShowPopup(busyIndicator);
-                        }));
-                    }
-                }
+                App.Current.MainPage = appShell;
             }
-            catch (Exception ex)
+            else
             {
-                await Console.Out.WriteLineAsync($"Error:{ex.Message}");
+                await popupServices.ShowPopUpMessage("INFO", result.Item2, "OK");
             }
 
-            return await Task.FromResult(true);
+
+            IsBusy = false;
         }
-        /// <summary>
-        /// Popup Message view.
-        /// </summary>
-        /// <param name="error"></param>
-        /// <param name="cLOSE"></param>
-        /// <returns></returns>
-        private async Task ShowPopUpMessage(string messageBody, string buttonText)
+
+        public async Task Reload()
         {
-            await App.Current.MainPage.DisplayAlert("Info", messageBody, buttonText);
+            _ = await _PermissionServices.GetRequestPermissionNetworking();
+            _ = await _PermissionServices.GetRequestPermissionPhotos();
+            _ = await _PermissionServices.GetRequestPermissionStorageWrite();
+            _ = await _PermissionServices.GetRequestPermissionStorageRead();
+            
         }
     }
 }
